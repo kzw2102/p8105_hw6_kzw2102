@@ -33,6 +33,21 @@ birthweight_tidy =
     frace=as.factor(frace),
     frace=fct_relevel(frace,"White", "Black", "Asian", "Puerto Rican", "Other", "unknown"),
     gaweeks=as.numeric(gaweeks),
+    malform=recode(malform, '0' = "absent", '1' = "present"),
+    malform=as.factor(malform),
+    malform=fct_relevel(malform, "absent", "present"),
+    menarche=as.numeric(menarche),
+    mheight=as.numeric(mheight),
+    momage=as.numeric(momage),
+    mrace=recode(mrace,'1' = 'White', '2' = 'Black', '3' = 'Asian', '4' = 'Puerto Rican', ' 8' = 'Other'),
+    mrace=as.factor(mrace),
+    parity=as.numeric(parity), 
+    pnumlbw=as.numeric(pnumlbw),
+    pnumgsa=as.numeric(pnumgsa),
+    ppbmi = as.numeric(ppbmi),
+    ppwt=as.numeric(ppwt),
+    smoken=as.numeric(smoken),
+    wtgain=as.numeric(wtgain)
   )
   
   
