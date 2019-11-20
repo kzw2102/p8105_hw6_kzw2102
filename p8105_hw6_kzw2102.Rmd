@@ -57,7 +57,9 @@ birthweight_tidy =
 ```
 
 #### Model Fitting
+
 This is my model fitting process: 
+
 1. Tidy the data
 2. Use a Stepwise function to fit the model
 3. Create the model 
@@ -131,4 +133,11 @@ pivot_longer(
   mutate(model = fct_inorder(model)) %>% 
   ggplot(aes(x = model, y = rmse)) + geom_violin()
 ```
+As listed above, these were my steps to creating a model. 
 
+First I tidied the data to make sure that all variables that were numeric were coded as numeric, and all categorical variables became factored variables. 
+
+Afterwards, I used an automated stepwise fuction to generate a model of interest. This was using the `r stepAIC()` function that is part of the `r library(MASS)` package. From there, a model was generated to include the following variables: `r babysex`,  `r bhead` , `r blength` , `r delwt`, `r fincome`, `r gaweeks`, `r mheight`, `r mrace`, `r parity`, `r ppwt`, and `r smoken`. 
+
+Next, I created a ggplot of the predicted values to the residual. As seen from the plot, majority of the plots center around the residual=0, which is very ideal.
+Looking at these graphs, my model, labeled "fit" appears to have the best fitting model. 
