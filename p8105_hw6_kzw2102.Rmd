@@ -180,6 +180,8 @@ bootstrap_rsquared_plot=
 
 quantile(pull(bootstrap_rsquared, r.squared), probs=0.025)
 quantile(pull(bootstrap_rsquared, r.squared), probs=0.975)
+
+print(bootstrap_rsquared_plot)
 ```
 
 ```{r}
@@ -208,6 +210,8 @@ bootstrap_log_plot=
 
 quantile(pull(bootstrap_log, lg), probs=0.025)
 quantile(pull(bootstrap_log, lg), probs=0.975)
+
+print(bootstrap_log_plot)
 
 ```
 Using the NOAA weather dataset that we have previously used in our class, which has `r nrow(weather_df)` rows and `r ncol(weather_df)` columns, 5000 bootstrap samples were used to produce estimates of the ${r}2$ value and of $log(\hat{\beta_0^2}*\hat{\beta_1^2})$ 
