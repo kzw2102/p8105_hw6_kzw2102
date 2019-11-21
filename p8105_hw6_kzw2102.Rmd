@@ -6,11 +6,14 @@ output: github_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
 library(leaps)
 library(MASS)
+library(tidyverse)
 library(modelr)
 library(mgcv)
+library(p8105.datasets)
+library(rnoaa)
+
 
 ```
 
@@ -133,11 +136,80 @@ pivot_longer(
   mutate(model = fct_inorder(model)) %>% 
   ggplot(aes(x = model, y = rmse)) + geom_violin()
 ```
+
 As listed above, these were my steps to creating a model. 
 
-First I tidied the data to make sure that all variables that were numeric were coded as numeric, and all categorical variables became factored variables. 
+First I tidied the data--which included `r nrow(birthweight_tidy)` participants and `r ncol(birthweight_tidy)` variables--to make sure that all variables that were numeric were coded as numeric, and all categorical variables became factored variables. 
 
-Afterwards, I used an automated stepwise fuction to generate a model of interest. This was using the `r stepAIC()` function that is part of the `r library(MASS)` package. From there, a model was generated to include the following variables: `r babysex`,  `r bhead` , `r blength` , `r delwt`, `r fincome`, `r gaweeks`, `r mheight`, `r mrace`, `r parity`, `r ppwt`, and `r smoken`. 
+Afterwards, I used an automated stepwise fuction to generate a model of interest. This was using the `stepAIC()` function that is part of the ` library(MASS)` package. From there, a model was generated to include the following variables: `babysex`,  `bhead` , `blength` , `delwt`, `fincome`, `gaweeks`, `mheight`, `mrace`, `parity`, `ppwt`, and `smoken`. 
 
 Next, I created a ggplot of the predicted values to the residual. As seen from the plot, majority of the plots center around the residual=0, which is very ideal.
-Looking at these graphs, my model, labeled "fit" appears to have the best fitting model. 
+
+Looking at these graphs, my model, labeled "fit" appears to have the best fitting model as it has the lowest rsme value.
+
+## Problem 2
+```{r}
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
+  mutate(
+    name = recode(id, USW00094728 = "CentralPark_NY"),
+    tmin = tmin / 10,
+    tmax = tmax / 10) %>%
+  dplyr::select(name, id, everything() )
+
+## i had to add "dplyr":: because the original code was not running without it
+```
+```{r}
+#for estimated r^2
+set.seed(1)
+bootstrap_rsquared=
+  weather_df %>% 
+  modelr::bootstrap(n = 5000) %>% 
+  mutate(
+    models = map(strap, ~ lm(tmax ~ tmin, data = .x)),
+    results = map(models, broom::glance)) %>% 
+  select(results) %>% 
+  unnest(results) 
+bootstrap_rsquared_plot=
+  bootstrap_rsquared %>% 
+  ggplot(aes(x = r.squared)) + geom_density()
+
+quantile(pull(bootstrap_rsquared, r.squared), probs=0.025)
+quantile(pull(bootstrap_rsquared, r.squared), probs=0.975)
+```
+
+```{r}
+set.seed(1)
+bootstrap_log=
+weather_df %>% 
+  modelr::bootstrap(n = 5000) %>% 
+  mutate(
+    models = map(strap, ~ lm(tmax ~ tmin, data = .x)),
+    results = map(models, broom::tidy)) %>% 
+  select(results, .id) %>% 
+  unnest(results) %>%
+  select(.id, estimate, term) %>% 
+  pivot_wider(
+    names_from="term",
+    values_from="estimate"
+  ) %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    lg=log(intercept*tmin)
+  ) 
+
+bootstrap_log_plot=
+  bootstrap_log %>% 
+  ggplot(aes(x = lg))+ geom_density()
+
+quantile(pull(bootstrap_log, lg), probs=0.025)
+quantile(pull(bootstrap_log, lg), probs=0.975)
+
+```
+Using the NOAA weather dataset that we have previously used in our class, which has `r nrow(weather_df)` rows and `r ncol(weather_df)` columns, 5000 bootstrap samples were used to produce estimates of the ${r}2$ value and of $log(\hat{\beta_0^2}*\hat{\beta_1^2})$ 
+In our model, $\hat {r} 2$, we are 95% confident that our true ${r} 2$ value lies between `r quantile(pull(bootstrap_rsquared, r.squared), probs=0.025)` and `r quantile(pull(bootstrap_rsquared, r.squared), probs=0.975)`. Also, we are 95% confident that the true $ log(\beta_0^2*\beta_1^2)$ lies between `r quantile(pull(bootstrap_log, lg), probs=0.025)` and `r quantile(pull(bootstrap_log, lg), probs=0.975)`. As seen here, our $\hat {r} 2$ distributions has a right skewed distribution. However, our $ log(\hat{\beta_0^2}*\hat{\beta_1^2})$ distribution looks more normal, which would make sense as we usually use the log transformation to make skewed distribution more normal. 
+
