@@ -141,11 +141,14 @@ As listed above, these were my steps to creating a model.
 
 First I tidied the data--which included `r nrow(birthweight_tidy)` participants and `r ncol(birthweight_tidy)` variables--to make sure that all variables that were numeric were coded as numeric, and all categorical variables became factored variables. 
 
-Afterwards, I used an automated stepwise fuction to generate a model of interest. This was using the `stepAIC()` function that is part of the ` library(MASS)` package. From there, a model was generated to include the following variables: `babysex`,  `bhead` , `blength` , `delwt`, `fincome`, `gaweeks`, `mheight`, `mrace`, `parity`, `ppwt`, and `smoken`. 
+Afterwards, I used an automated stepwise fuction to generate a model of interest. This was using the `stepAIC()` function that is part of the ` library(MASS)` package. From there, a model was generated to include the following variables: `babysex`,  `bhead` , `blength` , `delwt`, `fincome`, `gaweeks`, `mheight`, `mrace`, `parity`, `ppwt`, and `smoken`. The following is my model: 
+
 
 Next, I created a ggplot of the predicted values to the residual. As seen from the plot, majority of the plots center around the residual=0, which is very ideal.
 
 Looking at these graphs, my model, labeled "fit" appears to have the best fitting model as it has the lowest rsme value.
+$$ birthweight = \beta_0 + \beta_1*babysex + \beta_2*bhead + \beta_3*blength + \beta_4*delwt + \beta_5*fincome + \beta_6*gaweeks + \beta_7*mheight + \beta_8*mrace + \beta_9*parity + \beta_10*ppwt + \beta_11*smoken $$
+
 
 ## Problem 2
 ```{r}
@@ -214,6 +217,8 @@ quantile(pull(bootstrap_log, lg), probs=0.975)
 print(bootstrap_log_plot)
 
 ```
-Using the NOAA weather dataset that we have previously used in our class, which has `r nrow(weather_df)` rows and `r ncol(weather_df)` columns, 5000 bootstrap samples were used to produce estimates of the ${r}2$ value and of $log(\hat{\beta_0^2}*\hat{\beta_1^2})$ 
-In our model, $\hat {r} 2$, we are 95% confident that our true ${r} 2$ value lies between `r quantile(pull(bootstrap_rsquared, r.squared), probs=0.025)` and `r quantile(pull(bootstrap_rsquared, r.squared), probs=0.975)`. Also, we are 95% confident that the true $ log(\beta_0^2*\beta_1^2)$ lies between `r quantile(pull(bootstrap_log, lg), probs=0.025)` and `r quantile(pull(bootstrap_log, lg), probs=0.975)`. As seen here, our $\hat {r} 2$ distributions has a right skewed distribution. However, our $ log(\hat{\beta_0^2}*\hat{\beta_1^2})$ distribution looks more normal, which would make sense as we usually use the log transformation to make skewed distribution more normal. 
+
+Using the NOAA weather dataset that we have previously used in our class, which has `r nrow(weather_df)` rows and `r ncol(weather_df)` columns, 5000 bootstrap samples were used to produce estimates of the $r^2$ value and of $log{(\hat{\beta}_0^2*\hat{\beta}_1^2)}$ 
+
+In our model, $r^2$ , we are 95% confident that our true $r^2$ value lies between `r quantile(pull(bootstrap_rsquared, r.squared), probs=0.025)` and `r quantile(pull(bootstrap_rsquared, r.squared), probs=0.975)`. Also, we are 95% confident that the true $ log(\hat{\beta}_0^2*\hat{\beta}_1^2)$ lies between `r quantile(pull(bootstrap_log, lg), probs=0.025)` and `r quantile(pull(bootstrap_log, lg), probs=0.975)`. As seen here, our $r^2$ distributions has a right skewed distribution. However, our $ log(\beta_0^2*\beta_1^2)$ distribution looks more normal, which would make sense as we usually use the log transformation to make skewed distribution more normal. 
 
